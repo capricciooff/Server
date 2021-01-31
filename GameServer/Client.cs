@@ -5,12 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 namespace GameServer
 {
     class Client
     {
         public static int dataBufferSize = 4096;
+
         public int id;
+        public Player player;
         public TCP tcp;
         public UDP udp;
 
@@ -54,6 +57,7 @@ namespace GameServer
             {
                 try
                 {
+                    //Console.WriteLine($"Sending data to player {id} via TCP.");
                     if (socket != null)
                     {
                         stream.BeginWrite(_packet.ToArray(), 0, _packet.Length(), null, null);
@@ -138,7 +142,6 @@ namespace GameServer
             public void Connect(IPEndPoint _endPoint)
             {
                 endPoint = _endPoint;
-                ServerSend.UDPTest(id);
             }
 
             public void SendData(Packet _packet)
@@ -159,6 +162,30 @@ namespace GameServer
                         Server.packetHandlers[_packetId](id, _packet);
                     }
                 });
+            }
+        }
+
+        public void SendIntoGame(string _playerName)
+        {
+            player = new Player(id, _playerName, new Vector3(0, 0, 0));
+
+            //Console.WriteLine($"player {id} spawning sended to server.");
+            foreach (Client _client in Server.clients.Values)//for every client in dictinary
+            {
+                if (_client.player != null)
+                {
+                    if (_client.id != id)
+                    {
+                        ServerSend.SpawnPlayer(id, _client.player);//Этому игроку об остальных
+                    }
+                }
+            }
+            foreach (Client _client in Server.clients.Values)//for every client in dictinary
+            {
+                if (_client.player != null)
+                {
+                    ServerSend.SpawnPlayer(_client.id, player);//Остальным об этом
+                }
             }
         }
     }
