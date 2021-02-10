@@ -9,8 +9,9 @@ namespace GameServer
     {
         welcome = 1,
         spawnPlayer,
-        playerPosition,
-        playerRotation,
+        gridBuilding,
+        gridStage,
+        gridCursor,
         //udpTest   no need anymore
     }
 
@@ -18,7 +19,9 @@ namespace GameServer
     public enum ClientPackets
     {
         welcomeReceived = 1,
-        playerMovement
+        playerGrid,
+        cursorGrid,
+        //stageGrid,
         //udpTestReceive
     }
 

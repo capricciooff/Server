@@ -11,7 +11,6 @@ namespace GameServer
     class Server
     {
         public static int MaxPlayers { get; private set; }
-
         public static int Port { get; private set; }
         public static Dictionary<int, Client> clients = new Dictionary<int, Client>();
         public delegate void PacketHandler(int _fromClient, Packet _packet);
@@ -30,18 +29,18 @@ namespace GameServer
 
             tcpListener = new TcpListener(IPAddress.Any, Port);
             tcpListener.Start();
-            tcpListener.BeginAcceptTcpClient(new AsyncCallback(TCPConnectCallback), null);
+            tcpListener.BeginAcceptTcpClient(TCPConnectCallback, null);
 
             udpListener = new UdpClient(Port);
             udpListener.BeginReceive(UDPReceiveCallback, null);
 
-            Console.WriteLine($"Server started on {Port}.");
+            Console.WriteLine($"Server started on port {Port}.");
         }
 
         private static void TCPConnectCallback(IAsyncResult _result)
         {
             TcpClient _client = tcpListener.EndAcceptTcpClient(_result);
-            tcpListener.BeginAcceptTcpClient(new AsyncCallback(TCPConnectCallback), null);
+            tcpListener.BeginAcceptTcpClient(TCPConnectCallback, null);
             Console.WriteLine($"Incoming connection from {_client.Client.RemoteEndPoint}...");
 
             for (int i = 1; i <= MaxPlayers; i++)
@@ -53,7 +52,7 @@ namespace GameServer
                 }
             }
 
-            Console.WriteLine($"{_client.Client.RemoteEndPoint} failed to connect: Server is full!");
+            Console.WriteLine($"{_client.Client.RemoteEndPoint} failed to connect: Server full!");
         }
 
         private static void UDPReceiveCallback(IAsyncResult _result)
@@ -73,24 +72,24 @@ namespace GameServer
                 {
                     int _clientId = _packet.ReadInt();
 
-                    if (_clientId == 0)//не возможный пользователь
+                    if (_clientId == 0)
                     {
                         return;
                     }
 
-                    if (clients[_clientId].udp.endPoint == null)//первое подключение
+                    if (clients[_clientId].udp.endPoint == null)
                     {
                         clients[_clientId].udp.Connect(_clientEndPoint);
                         return;
                     }
 
-                    if (clients[_clientId].udp.endPoint.ToString() == _clientEndPoint.ToString())//пытается передать данные себе(читер мб)
+                    if (clients[_clientId].udp.endPoint.ToString() == _clientEndPoint.ToString())
                     {
                         clients[_clientId].udp.HandleData(_packet);
                     }
                 }
             }
-            catch(Exception _ex)
+            catch (Exception _ex)
             {
                 Console.WriteLine($"Error receiving UDP data: {_ex}");
             }
@@ -107,7 +106,7 @@ namespace GameServer
             }
             catch (Exception _ex)
             {
-                Console.WriteLine($"Error sending data to {_clientEndPoint} vid UDP: {_ex}");
+                Console.WriteLine($"Error sending data to {_clientEndPoint} via UDP: {_ex}");
             }
         }
 
@@ -120,7 +119,9 @@ namespace GameServer
 
             packetHandlers = new Dictionary<int, PacketHandler>()
             {
-                { (int)ClientPackets.welcomeReceived, ServerHandle.WelcomeReceived }
+                { (int)ClientPackets.welcomeReceived, ServerHandle.WelcomeReceived },
+                { (int)ClientPackets.playerGrid, ServerHandle.PlayerGrid },
+                { (int)ClientPackets.cursorGrid, ServerHandle.CursorGrid },
             };
             Console.WriteLine("Initialized packets.");
         }
