@@ -15,9 +15,11 @@ namespace GameServer
         public int[,] Stage;
         public int[,] Cursor;
 
-        //Далее код не для моей игры. Но я переделываю.
+        //Далее код не особо нужен для моей игры. Но я переделываю.
         public Vector3 position;
         public Quaternion rotation;
+
+        bool Changes = false;
 
         public Player(int _id, string _username, Vector3 _spawnPosition, int _size)//constructor
         {
@@ -41,13 +43,14 @@ namespace GameServer
 
         public void Update()//works every tps
         {
-            ServerSend.BuildingGrid(this);
-            ServerSend.CursorGrid(this);
+            ServerSend.BuildingGrid(this, Changes);
+            //ServerSend.CursorGrid(this);  пока нормально не работает, да и не очень оно надо, поэтому не делаю.
             ServerSend.StageGrid(this);
         }
 
-        public void SetGrid(int[,] _grid, int[,] _stage)
+        public void SetGrid(int[,] _grid, int[,] _stage, bool _changes)
         {
+            Changes = _changes;
             CurrentBuilding = _grid;
             Stage = _stage;
         }

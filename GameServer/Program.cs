@@ -14,7 +14,7 @@ namespace GameServer
             Thread mainThread = new Thread(new ThreadStart(MainThread));
             mainThread.Start();
 
-            Server.Start(/*Кол-во человек на сервере. Хз, мб надо ставить 4, но это потом.*/50, 7777);
+            Server.Start(/*Кол-во человек на сервере. Хз, мб надо ставить 4, но это потом.*/4, 7777);
         }
 
         private static void MainThread()

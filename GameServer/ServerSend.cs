@@ -95,17 +95,21 @@ namespace GameServer
             }
         }
 
-        public static void BuildingGrid(Player _player)
+        public static void BuildingGrid(Player _player, bool _changes)
         {
-            using (Packet _packet = new Packet((int)ServerPackets.gridBuilding))
+            if (_changes)
             {
-                _packet.Write(_player.id);
-                _packet.Write(_player.CurrentBuilding.Length);
-                foreach (int _building in _player.CurrentBuilding)
+                Console.WriteLine(_changes);
+                using (Packet _packet = new Packet((int)ServerPackets.gridBuilding))
                 {
-                    _packet.Write(_building);
+                    _packet.Write(_player.id);
+                    _packet.Write(_player.CurrentBuilding.Length);
+                    foreach (int _building in _player.CurrentBuilding)
+                    {
+                        _packet.Write(_building);
+                    }
+                    SendTCPDataToAll(_packet);//Здесь будем использовать TCP, т.к. пакет важный и нельзя его терять!!!
                 }
-                SendTCPDataToAll(_player.id, _packet);//Здесь будем использовать TCP, т.к. пакет важный и нельзя его терять!!!
             }
         }
         public static void CursorGrid(Player _player)
@@ -118,7 +122,7 @@ namespace GameServer
                 {
                     _packet.Write(_cursor);
                 }
-                SendUDPDataToAll(_player.id, _packet);//UDP быстрее
+                SendUDPDataToAll(_packet);//UDP быстрее
             }
         }
         public static void StageGrid(Player _player)
@@ -131,7 +135,7 @@ namespace GameServer
                 {
                     _packet.Write(_stage);
                 }
-                SendUDPDataToAll(_player.id, _packet);//UDP быстрее
+                SendUDPDataToAll(_packet);//UDP быстрее
             }
         }
         #endregion
