@@ -97,9 +97,8 @@ namespace GameServer
 
         public static void BuildingGrid(Player _player, bool _changes)
         {
-            if (_changes)
+            //if (_changes)   //используется, чтобы посылать только при измененнии, но, чтобы не потерять пакет, лучше пока убрать. :^(
             {
-                Console.WriteLine(_changes);
                 using (Packet _packet = new Packet((int)ServerPackets.gridBuilding))
                 {
                     _packet.Write(_player.id);
@@ -108,7 +107,7 @@ namespace GameServer
                     {
                         _packet.Write(_building);
                     }
-                    SendTCPDataToAll(_packet);//Здесь будем использовать TCP, т.к. пакет важный и нельзя его терять!!!
+                    SendTCPDataToAll(_player.id, _packet);//Здесь будем использовать TCP, т.к. пакет важный и нельзя его терять!!!
                 }
             }
         }
@@ -135,7 +134,7 @@ namespace GameServer
                 {
                     _packet.Write(_stage);
                 }
-                SendUDPDataToAll(_packet);//UDP быстрее
+                SendUDPDataToAll(_player.id, _packet);//UDP быстрее
             }
         }
         #endregion
