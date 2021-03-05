@@ -8,7 +8,7 @@ namespace GameServer
 {
     class Player
     {
-        public short id;
+        public int id;
         public string username;
 
         public int[,] CurrentBuilding;
@@ -21,7 +21,7 @@ namespace GameServer
 
         bool Changes = false;
 
-        public Player(short _id, string _username, Vector3 _spawnPosition, int _size)//constructor
+        public Player(int _id, string _username, Vector3 _spawnPosition, int _size)//constructor
         {
             id = _id;
             username = _username;

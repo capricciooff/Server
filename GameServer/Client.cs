@@ -12,12 +12,12 @@ namespace GameServer
     {
         public static int dataBufferSize = 4096;
 
-        public short id;
+        public int id;
         public Player player;
         public TCP tcp;
         public UDP udp;
 
-        public Client(short _clientId)
+        public Client(int _clientId)
         {
             id = _clientId;
             tcp = new TCP(id);
