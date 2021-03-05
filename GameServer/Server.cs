@@ -10,7 +10,7 @@ namespace GameServer
 {
     class Server
     {
-        public static int MaxPlayers { get; private set; }
+        public static short MaxPlayers { get; private set; }
         public static int Port { get; private set; }
         public static Dictionary<int, Client> clients = new Dictionary<int, Client>();
         public delegate void PacketHandler(int _fromClient, Packet _packet);
@@ -19,7 +19,7 @@ namespace GameServer
         private static TcpListener tcpListener;
         private static UdpClient udpListener;
 
-        public static void Start(int _maxPlayers, int _port)
+        public static void Start(short _maxPlayers, int _port)
         {
             MaxPlayers = _maxPlayers;
             Port = _port;
@@ -112,7 +112,7 @@ namespace GameServer
 
         private static void InitializeServerData()
         {
-            for (int i = 1; i <= MaxPlayers; i++)
+            for (short i = 1; i <= MaxPlayers; i++)
             {
                 clients.Add(i, new Client(i));
             }
