@@ -46,6 +46,7 @@ namespace GameServer
             ServerSend.BuildingGrid(this, Changes);
             //ServerSend.CursorGrid(this);  пока нормально не работает, да и не очень оно надо, поэтому не делаю.
             ServerSend.StageGrid(this);
+            //здеся нада stagebuilder сделать
         }
 
         public void SetGrid(int[,] _grid, int[,] _stage, bool _changes)
