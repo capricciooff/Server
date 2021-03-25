@@ -49,11 +49,10 @@ namespace GameServer
             //здеся нада stagebuilder сделать
         }
 
-        public void SetGrid(int[,] _grid, int[,] _stage, bool _changes)
+        public void SetGrid(int[,] _grid, bool _changes)
         {
             Changes = _changes;
             CurrentBuilding = _grid;
-            Stage = _stage;
         }
 
         public void SetCursor(int[,] _grid)

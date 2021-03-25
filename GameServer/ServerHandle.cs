@@ -25,7 +25,7 @@ namespace GameServer
         public static void PlayerGrid(int _fromClient, Packet _packet)
         {
             bool _changes = false;
-            int k = _packet.ReadInt() / 2;
+            int k = _packet.ReadInt();
             short _length = Convert.ToInt16(Math.Sqrt(k));
             int[,] _grid = new int[_length, _length];
             for (int i = 0; i < _length; i++)
@@ -40,20 +40,7 @@ namespace GameServer
                 }
             }
 
-            int[,] _stage = new int[_length, _length];
-            for (int i = 0; i < _length; i++)
-            {
-                for (int j = 0; j < _length; j++)
-                {
-                    _stage[i, j] = _packet.ReadInt();
-                    if (Server.clients[_fromClient].player.CurrentBuilding[i, j] != _grid[i, j])
-                    {
-                        _changes = true;
-                    }
-                }
-            }
-
-            Server.clients[_fromClient].player.SetGrid(_grid, _stage, _changes);
+            Server.clients[_fromClient].player.SetGrid(_grid, _changes);
         }
 
         public static void CursorGrid(int _fromClient, Packet _packet)
