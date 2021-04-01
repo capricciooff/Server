@@ -33,7 +33,7 @@ namespace GameServer
                 for (int j = 0; j < Convert.ToInt16(Math.Sqrt(k)); j++)
                 {
                     _grid[i, j] = _packet.ReadInt();
-                    if (Server.clients[_fromClient].player.CurrentBuilding[i, j] != _grid[i, j])
+                    if (Server.clients[_fromClient].player.Building[i, j].CurrentBuilding != _grid[i, j])
                     {
                         _changes = true;
                     }
