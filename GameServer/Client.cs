@@ -206,7 +206,6 @@ namespace GameServer
         public void SendIntoGame(string _playerName)
         {
             player = new Player(id, _playerName, new Vector3(0, 0, 0), GridSize/*сюда потом размер поля засунь*/);
-            check = new CheckBuildingInGrid(GridSize);
 
             Console.WriteLine($"player {id} spawning sended to server.");
             foreach (Client _client in Server.clients.Values)//for every client in dictinary
