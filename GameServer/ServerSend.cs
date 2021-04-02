@@ -95,20 +95,23 @@ namespace GameServer
             }
         }
 
-        public static void BuildingGrid(Player _player)
+        public static void BuildingGrid(Player _player, bool _changes)
         {
-            using (Packet _packet = new Packet((int)ServerPackets.gridBuilding))
+            //if (_changes)   //используется, чтобы посылать только при измененнии, но, чтобы не потерять пакет, лучше пока убрать. :^(
             {
-                _packet.Write(_player.id);
-                _packet.Write(_player.CurrentBuilding.Length);
-                foreach (int _building in _player.CurrentBuilding)
+                using (Packet _packet = new Packet((int)ServerPackets.gridBuilding))
                 {
-                    _packet.Write(_building);
+                    _packet.Write(_player.id);
+                    _packet.Write(_player.Building.Length);
+                    foreach (Grid _building in _player.Building)
+                    {
+                        _packet.Write(_building.CurrentBuilding);
+                    }
+                    SendTCPDataToAll(_player.id, _packet);//Здесь будем использовать TCP, т.к. пакет важный и нельзя его терять!!!
                 }
-                SendTCPDataToAll(_player.id, _packet);//Здесь будем использовать TCP, т.к. пакет важный и нельзя его терять!!!
             }
         }
-        public static void CursorGrid(Player _player)
+        /*public static void CursorGrid(Player _player)
         {
             using (Packet _packet = new Packet((int)ServerPackets.gridCursor))
             {
@@ -118,18 +121,18 @@ namespace GameServer
                 {
                     _packet.Write(_cursor);
                 }
-                SendUDPDataToAll(_player.id, _packet);//UDP быстрее
+                SendUDPDataToAll(_packet);//UDP быстрее
             }
-        }
+        }*/
         public static void StageGrid(Player _player)
         {
             using (Packet _packet = new Packet((int)ServerPackets.gridStage))
             {
                 _packet.Write(_player.id);
-                _packet.Write(_player.Stage.Length);
-                foreach (int _stage in _player.Stage)
+                _packet.Write(_player.Building.Length);
+                foreach (Grid _building in _player.Building)
                 {
-                    _packet.Write(_stage);
+                    _packet.Write(_building.Stage);
                 }
                 SendUDPDataToAll(_player.id, _packet);//UDP быстрее
             }

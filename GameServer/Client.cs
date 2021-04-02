@@ -12,8 +12,11 @@ namespace GameServer
     {
         public static int dataBufferSize = 4096;
 
+        public static int GridSize = 40;
+
         public int id;
         public Player player;
+        public CheckBuildingInGrid check;
         public TCP tcp;
         public UDP udp;
 
@@ -202,7 +205,7 @@ namespace GameServer
 
         public void SendIntoGame(string _playerName)
         {
-            player = new Player(id, _playerName, new Vector3(0, 0, 0), 40/*сюда потом размер поля засунь*/);
+            player = new Player(id, _playerName, new Vector3(0, 0, 0), GridSize/*сюда потом размер поля засунь*/);
 
             Console.WriteLine($"player {id} spawning sended to server.");
             foreach (Client _client in Server.clients.Values)//for every client in dictinary

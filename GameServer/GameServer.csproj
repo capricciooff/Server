@@ -47,9 +47,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CheckBuildingInGrid.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="GameLogic.cs" />
+    <Compile Include="Grid.cs" />
+    <Compile Include="MyEvents.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
