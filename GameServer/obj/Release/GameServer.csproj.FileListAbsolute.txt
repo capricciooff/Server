@@ -1,0 +1,9 @@
+E:\Server\GameServer\Server\GameServer\bin\Release\GameServer.exe.config
+E:\Server\GameServer\Server\GameServer\bin\Release\GameServer.exe
+E:\Server\GameServer\Server\GameServer\bin\Release\GameServer.pdb
+E:\Server\GameServer\Server\GameServer\bin\Release\System.Numerics.Vectors.dll
+E:\Server\GameServer\Server\GameServer\bin\Release\System.Numerics.Vectors.xml
+E:\Server\GameServer\Server\GameServer\obj\Release\GameServer.csproj.CoreCompileInputs.cache
+E:\Server\GameServer\Server\GameServer\obj\Release\GameServer.csproj.CopyComplete
+E:\Server\GameServer\Server\GameServer\obj\Release\GameServer.exe
+E:\Server\GameServer\Server\GameServer\obj\Release\GameServer.pdb

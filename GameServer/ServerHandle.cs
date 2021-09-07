@@ -30,10 +30,10 @@ namespace GameServer
             int[,] _grid = new int[_length, _length];
             for (int i = 0; i < _length; i++)
             {
-                for (int j = 0; j < Convert.ToInt16(Math.Sqrt(k)); j++)
+                for (int j = 0; j < _length; j++)
                 {
                     _grid[i, j] = _packet.ReadInt();
-                    if (Server.clients[_fromClient].player.Building[i, j].CurrentBuilding != _grid[i, j])
+                    if ((Server.clients[_fromClient].player.grid[i, j]) != _grid[i, j])
                     {
                         _changes = true;
                     }

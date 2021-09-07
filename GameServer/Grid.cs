@@ -9,7 +9,7 @@ namespace GameServer
     /////////////////////////////////////////////////////////////////////
     public class Grid
     {
-        public int CurrentBuilding = 0;
+        public int[,] CurrentBuilding;
 
         public int Stage;
         public int NumOfStages;
@@ -21,32 +21,53 @@ namespace GameServer
 
         public string TypeOfBuilding;
 
-        public virtual void SetEvents(int k)
+        public int TimeTillStage = -1;//sec remain to next stage
+        private int standartStageTime = -1;//sec betwen stages
+
+        /*public virtual void SetEvents(int k)
         {
             PossibleEvents = new buildingEvents[k];
+            PossibleEvents[0] = (buildingEvents)0;
+        }*/
+        public void InitResidental()
+        {
+            TypeOfBuilding = "Residental";
+            PossibleEvents = new buildingEvents[2];
+            PossibleEvents[0] = (buildingEvents)0;
+            PossibleEvents[1] = (buildingEvents)1;
+            NumOfStages = 2;
+            Stage = 1;
+            standartStageTime = 5;
+            StartStage();
+        }
+        public void StartStage()
+        {
+            TimeTillStage = standartStageTime * Constants.TICKS_PER_SEC;
         }
     }
 
-    public class ResidentalBuilding : Grid
+    /*public class ResidentalBuilding : Grid
     {
         public override void SetEvents(int k)
         {
-            base.SetEvents(2);
+            base.SetEvents(k);
             TypeOfBuilding = "Residental";
             PossibleEvents[0] = (buildingEvents)0;
             PossibleEvents[1] = (buildingEvents)1;
         }
         public ResidentalBuilding()
         {
-            this.SetEvents(1);
+            this.SetEvents(2);
+            NumOfStages = 2;
         }
-    }
+    }*/
     /////////////////////////////////////////////////////////////////////
     ///
     public enum buildingEvents
     {
-        Meeteng = 0,
-        Сollapse = 1
+        None = 0,
+        Meeteng = 1,
+        Сollapse = 2
     }
     ///
 }
