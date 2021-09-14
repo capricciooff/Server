@@ -19,7 +19,7 @@ namespace GameServer
         //public Grid[,] Building;
         public int[,] grid;
 
-        //Далее код не особо нужен для моей игры. Но я переделываю(нет, это будет всегда).
+        //Далее код не особо нужен для моей игры. Но я переделываю(нет, это будет всегда, я сделаю на нем спавн камеры, хахахахах).
         public Vector3 position;
         public Quaternion rotation;
 
@@ -146,7 +146,7 @@ namespace GameServer
             Changes = _changes;
             for (int i = 0; i < size; i++)
             {
-                for (int j = 0; j < size; j++)
+                for (int j = 0; j < size; j++)//Надо оптимизировать эти циклы, а то их многовато становится
                 {
                     if (grid[i, j] != _grid[i, j] && _grid[i, j] != -1 && grid[i, j] == -1)
                     {
