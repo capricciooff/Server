@@ -24,11 +24,6 @@ namespace GameServer
         public int TimeTillStage = -1;//sec remain to next stage
         private int standartStageTime = -1;//sec betwen stages
 
-        /*public virtual void SetEvents(int k)
-        {
-            PossibleEvents = new buildingEvents[k];
-            PossibleEvents[0] = (buildingEvents)0;
-        }*/
         public void InitResidental()
         {
             TypeOfBuilding = "Residental";
@@ -45,22 +40,6 @@ namespace GameServer
             TimeTillStage = standartStageTime * Constants.TICKS_PER_SEC;
         }
     }
-
-    /*public class ResidentalBuilding : Grid
-    {
-        public override void SetEvents(int k)
-        {
-            base.SetEvents(k);
-            TypeOfBuilding = "Residental";
-            PossibleEvents[0] = (buildingEvents)0;
-            PossibleEvents[1] = (buildingEvents)1;
-        }
-        public ResidentalBuilding()
-        {
-            this.SetEvents(2);
-            NumOfStages = 2;
-        }
-    }*/
     /////////////////////////////////////////////////////////////////////
     ///
     public enum buildingEvents

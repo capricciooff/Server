@@ -16,7 +16,7 @@ namespace GameServer
         {
             myevent = (buildingEvents)_num;
             InitializeEvent(myevent);
-            //Console.WriteLine($"In {_type} building is {_event}");
+            Console.WriteLine($"In {_type} building is {myevent}");
         }
 
         public static void InitializeEvent(buildingEvents _event)

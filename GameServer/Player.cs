@@ -12,11 +12,10 @@ namespace GameServer
     {
         public int id;
         public string username;
-        public int level;
+        public int level = 1;
 
-        public int TimeSpeed;//должно меняться при изменении времени в игре
+        public int TimeSpeed = 1;//должно меняться при изменении времени в игре
 
-        //public Grid[,] Building;
         public int[,] grid;
 
         //Далее код не особо нужен для моей игры. Но я переделываю(нет, это будет всегда, я сделаю на нем спавн камеры, хахахахах).
@@ -28,10 +27,6 @@ namespace GameServer
 
         private bool Changes = false;
         private int changedX = -1, changedY = -1;
-        /*private int MaxX = 0;
-        private int MaxY = 0;
-        private int MinX = 0;
-        private int MinY = 0;*/
 
         private int size;//size of sqrt(grid.lenght)
 
@@ -51,61 +46,56 @@ namespace GameServer
                     grid[i, j] = -1;
                 }
             }
-            check = new CheckBuildingInGrid(_size, this);
+            check = new CheckBuildingInGrid(_size, this);//для начальной конфигурации
         }
 
-        public void AddToBuildings(int x, int y)//с удалением сделай потом
+        public void AddToBuildings(int x, int y)//Почти работает
         {
             check = new CheckBuildingInGrid(size, this);
             int[,] new_building = check.CheckForBuilding(x, y);
 
-            int diff = 0;
+            int numOfBuilding = -1;
 
-            if (new_building.Length > 1)
+            for (int k = 0; k > Building.Count; k++)
             {
-                for (int k = 0; k > Building.Count; k++)
+                for (int i = 0; i < size; i++)
                 {
-                    for (int i = 0; i < Client.GridSize; i++)
+                    for (int j = 0; j < size; j++)
                     {
-                        for (int j = 0; j < Client.GridSize; j++)
+                        if (Building[k].CurrentBuilding[i, j] == new_building[i, j])
                         {
-                            if (Building[k].CurrentBuilding[i, j] != new_building[i, j])
-                            {
-                                diff++;
-                            }
+                            numOfBuilding = k;
                         }
                     }
-                    if (diff >= 1)
+                }
+            }
+            if (numOfBuilding != -1)
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    for (int j = 0; j < size; j++)
                     {
-                        for (int i = 0; i < Client.GridSize; i++)
-                        {
-                            for (int j = 0; j < Client.GridSize; j++)
-                            {
-                                Building[k].CurrentBuilding[i, j] = new_building[i, j];
-                            }
-                        }
-                        break;
+                        Building[numOfBuilding].CurrentBuilding[i, j] = new_building[i, j];
                     }
-                    diff = 0;
                 }
             }
             else
             {
                 //Инициализация типа нового здания
                 Grid tmp_grid = new Grid();
-                tmp_grid.CurrentBuilding = new int[Client.GridSize, Client.GridSize];
-                for (int i = 0; i < Client.GridSize; i++)
+                tmp_grid.CurrentBuilding = new int[size, size];
+                for (int i = 0; i < size; i++)
                 {
-                    for (int j = 0; j < Client.GridSize; j++)
+                    for (int j = 0; j < size; j++)
                     {
                         tmp_grid.CurrentBuilding[i, j] = new_building[i, j];
                     }
                 }
                 Console.WriteLine("c");
                 Building.Add(tmp_grid);
-                for (int i = 0; i < Client.GridSize; i++)
+                for (int i = 0; i < size; i++)
                 {
-                    for (int j = 0; j < Client.GridSize; j++)
+                    for (int j = 0; j < size; j++)
                     {
                         switch (Building[Building.Count - 1].CurrentBuilding[i, j])//change building type
                         {
@@ -124,10 +114,6 @@ namespace GameServer
             //ServerSend.CursorGrid(this);  пока нормально не работает, да и не очень оно надо, поэтому не делаю.
             ServerSend.StageGrid(this);
 
-            /*for (int i = MinX; i <= MaxX; i++)
-            {
-                for (int j = MinY; j <= MaxY; j++)
-                {*///где-то накосячил с минимумом и максимумом, наверное по Y
             for (int k = 0; k < Building.Count; k++)
             {
                 if (Building[k].TimeTillStage > -1)
@@ -148,36 +134,27 @@ namespace GameServer
             {
                 for (int j = 0; j < size; j++)//Надо оптимизировать эти циклы, а то их многовато становится
                 {
-                    if (grid[i, j] != _grid[i, j] && _grid[i, j] != -1 && grid[i, j] == -1)
+                    if (grid[i, j] != _grid[i, j])
                     {
-                        grid[i, j] = _grid[i, j];
-                        changedX = i;
-                        changedY = j;
-                        /*if (i > MaxX)//Later i need to clear this values, but idk how, now..... anyway
+                        if (_grid[i, j] != -1 && grid[i, j] == -1)
                         {
-                            MaxX = i;
+                            grid[i, j] = _grid[i, j];
+                            changedX = i;
+                            changedY = j;
+                            AddToBuildings(changedX, changedY);
+                            break;
                         }
-                        else if(j > MaxY)
+                        else if (_grid[i, j] != -1)
                         {
-                            MinY = j;
+                            //здесь надо обновить владельца
                         }
-                        else if (i < MinX)
+                        else if (_grid[i, j] == -1)
                         {
-                            MinX = i;
+                            //здесь надо удалить здание
                         }
-                        else if (j < MinY)
-                        {
-                            MinY = j;
-                        }*/
-
-                        //_stageCh = true;
-                        //x = i;
-                        //y = j;
-                        break;
                     }
                 }
             }
-            AddToBuildings(changedX, changedY);
         }
 
         public void SetCursor(int[,] _grid)
