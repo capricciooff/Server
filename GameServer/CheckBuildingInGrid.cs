@@ -37,8 +37,6 @@ namespace GameServer
 
         public int[,] CheckForBuilding(int x, int y)
         {
-            Buildings.Clear();
-
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size; j++)

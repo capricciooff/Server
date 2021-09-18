@@ -10,18 +10,18 @@ namespace GameServer
     {
         private static buildingEvents myevent;
 
-        //public buildingEvents[] possibleEvent;//сюда наверное надо послать что-то, или хз на+хуя мне это
+        //public buildingEvents[] possibleEvent;//сюда наверное надо послать что-то, или хз зачем
 
         public static void StartEvent(int _num, string _type)
         {
             myevent = (buildingEvents)_num;
             InitializeEvent(myevent);
-            Console.WriteLine($"In {_type} building is {myevent}");
+            Console.WriteLine($"Starting event {myevent} in {_type} building");
         }
 
         public static void InitializeEvent(buildingEvents _event)
         {
-            Console.WriteLine(_event);
+            //
         }
     }
 }

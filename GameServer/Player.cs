@@ -56,7 +56,7 @@ namespace GameServer
 
             int numOfBuilding = -1;
 
-            for (int k = 0; k > Building.Count; k++)
+            for (int k = 0; k < Building.Count; k++)
             {
                 for (int i = 0; i < size; i++)
                 {
@@ -91,7 +91,6 @@ namespace GameServer
                         tmp_grid.CurrentBuilding[i, j] = new_building[i, j];
                     }
                 }
-                Console.WriteLine("c");
                 Building.Add(tmp_grid);
                 for (int i = 0; i < size; i++)
                 {
@@ -169,12 +168,9 @@ namespace GameServer
 
         public void ChangeStage(int num)
         {
-            Console.WriteLine("h");
             if (Building[num].NumOfStages > Building[num].Stage)
             {
-                Console.WriteLine("a");
                 int _eventNum = RandomEvent(level, Building[num].PossibleEvents.Length);
-                Console.WriteLine(_eventNum);
                 _eventNum = (int)Building[num].PossibleEvents[_eventNum];
                 string _type = Building[num].TypeOfBuilding;
                 MyEvents.StartEvent(_eventNum, _type);
