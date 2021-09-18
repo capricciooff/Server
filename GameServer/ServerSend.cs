@@ -102,10 +102,13 @@ namespace GameServer
                 using (Packet _packet = new Packet((int)ServerPackets.gridBuilding))
                 {
                     _packet.Write(_player.id);
-                    _packet.Write(_player.Building.Length);
-                    foreach (Grid _building in _player.Building)
+                    _packet.Write(_player.Building.Count);
+                    foreach (Grid _grid in _player.Building)
                     {
-                        _packet.Write(_building.CurrentBuilding);
+                        foreach (int _building in _grid.CurrentBuilding)
+                        {
+                            _packet.Write(_building);
+                        }
                     }
                     SendTCPDataToAll(_player.id, _packet);//Здесь будем использовать TCP, т.к. пакет важный и нельзя его терять!!!
                 }
@@ -129,7 +132,7 @@ namespace GameServer
             using (Packet _packet = new Packet((int)ServerPackets.gridStage))
             {
                 _packet.Write(_player.id);
-                _packet.Write(_player.Building.Length);
+                _packet.Write(_player.Building.Count);
                 foreach (Grid _building in _player.Building)
                 {
                     _packet.Write(_building.Stage);

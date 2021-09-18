@@ -21,7 +21,7 @@ namespace GameServer
         welcomeReceived = 1,
         playerGrid,
         cursorGrid,
-        //stageGrid,
+        //stageGrid, стадии меняю на сервере, а не клиенте, поэтому принимать сетку не нужно
         //udpTestReceive
     }
 

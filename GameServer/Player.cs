@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GameServer
@@ -11,20 +12,23 @@ namespace GameServer
     {
         public int id;
         public string username;
-        public int level;
+        public int level = 1;
 
-        public int TimeSpeed;//должно меняться при изменении времени в игре
+        public int TimeSpeed = 1;//должно меняться при изменении времени в игре
 
-        public Grid[,] Building;
+        public int[,] grid;
 
-        //Далее код не особо нужен для моей игры. Но я переделываю.
+        //Далее код не особо нужен для моей игры. Но я переделываю(нет, это будет всегда, я сделаю на нем спавн камеры, хахахахах).
         public Vector3 position;
         public Quaternion rotation;
 
         private CheckBuildingInGrid check;
-        public List<int[,]> BuildingS;
+        public List<Grid> Building;
 
-        bool Changes = false;
+        private bool Changes = false;
+        private int changedX = -1, changedY = -1;
+
+        private int size;//size of sqrt(grid.lenght)
 
         public Player(int _id, string _username, Vector3 _spawnPosition, int _size)//constructor
         {
@@ -32,17 +36,75 @@ namespace GameServer
             username = _username;
             position = _spawnPosition;
             rotation = Quaternion.Identity;
-            Building = new Grid[_size, _size];
+            Building = new List<Grid>();
+            size = _size;
+            grid = new int[_size, _size];
             for (int i = 0; i < _size; i++)
             {
                 for (int j = 0; j < _size; j++)
                 {
-                    Building[i, j].CurrentBuilding = -1;
-                    Building[i, j].Stage = -1;
-                    //Cursor[i, j] = -1;
+                    grid[i, j] = -1;
                 }
             }
-            check = new CheckBuildingInGrid(_size, this);
+            check = new CheckBuildingInGrid(_size, this);//для начальной конфигурации
+        }
+
+        public void AddToBuildings(int x, int y)//Почти работает
+        {
+            check = new CheckBuildingInGrid(size, this);
+            int[,] new_building = check.CheckForBuilding(x, y);
+
+            int numOfBuilding = -1;
+
+            for (int k = 0; k < Building.Count; k++)
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    for (int j = 0; j < size; j++)
+                    {
+                        if (Building[k].CurrentBuilding[i, j] == new_building[i, j])
+                        {
+                            numOfBuilding = k;
+                        }
+                    }
+                }
+            }
+            if (numOfBuilding != -1)
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    for (int j = 0; j < size; j++)
+                    {
+                        Building[numOfBuilding].CurrentBuilding[i, j] = new_building[i, j];
+                    }
+                }
+            }
+            else
+            {
+                //Инициализация типа нового здания
+                Grid tmp_grid = new Grid();
+                tmp_grid.CurrentBuilding = new int[size, size];
+                for (int i = 0; i < size; i++)
+                {
+                    for (int j = 0; j < size; j++)
+                    {
+                        tmp_grid.CurrentBuilding[i, j] = new_building[i, j];
+                    }
+                }
+                Building.Add(tmp_grid);
+                for (int i = 0; i < size; i++)
+                {
+                    for (int j = 0; j < size; j++)
+                    {
+                        switch (Building[Building.Count - 1].CurrentBuilding[i, j])//change building type
+                        {
+                            case 0:
+                                Building[Building.Count - 1].InitResidental();//и не надо никаких классов в массиве)
+                                break;
+                        }
+                    }
+                }
+            }
         }
 
         public void Update()//works every tps
@@ -50,41 +112,47 @@ namespace GameServer
             ServerSend.BuildingGrid(this, Changes);
             //ServerSend.CursorGrid(this);  пока нормально не работает, да и не очень оно надо, поэтому не делаю.
             ServerSend.StageGrid(this);
-            BuildingS = check.CheckForBuildingS();
+
+            for (int k = 0; k < Building.Count; k++)
+            {
+                if (Building[k].TimeTillStage > -1)
+                {
+                    if (Building[k].TimeTillStage == 0)
+                    {
+                        ChangeStage(k);
+                    }
+                    Building[k].TimeTillStage--;
+                }
+            }
         }
 
         public void SetGrid(int[,] _grid, bool _changes)//in serverhandle
         {
             Changes = _changes;
-            bool _stageCh = false;
-            int x = 0, y = 0;
-            for (int i = 0; i < (_grid.Length) / 2; i++)
+            for (int i = 0; i < size; i++)
             {
-                for (int j = 0; j < (_grid.Length) / 2; j++)
+                for (int j = 0; j < size; j++)//Надо оптимизировать эти циклы, а то их многовато становится
                 {
-                    if (Building[i, j].CurrentBuilding != _grid[i, j] && _grid[i, j] != -1 && Building[i, j].CurrentBuilding == -1)
+                    if (grid[i, j] != _grid[i, j])
                     {
-                        _stageCh = true;
-                        x = i;
-                        y = j;
-                        break;
+                        if (_grid[i, j] != -1 && grid[i, j] == -1)
+                        {
+                            grid[i, j] = _grid[i, j];
+                            changedX = i;
+                            changedY = j;
+                            AddToBuildings(changedX, changedY);
+                            break;
+                        }
+                        else if (_grid[i, j] != -1)
+                        {
+                            //здесь надо обновить владельца
+                        }
+                        else if (_grid[i, j] == -1)
+                        {
+                            //здесь надо удалить здание
+                        }
                     }
                 }
-            }
-
-
-            for (int i = 0; i < (_grid.Length) / 2; i++)
-            {
-                for (int j = 0; j < (_grid.Length) / 2; j++)
-                {
-                    Building[i, j].CurrentBuilding = _grid[i, j];
-                }
-            }
-
-
-            if (_stageCh)
-            {
-                ChangeStage(x, y);
             }
         }
 
@@ -93,83 +161,67 @@ namespace GameServer
             //Cursor = _grid;
         }
 
-        public void ChangeStage(int x, int y)
+        /*public void StartStage(int x, int y)
         {
-            var rand = new Random();
-            BuildingS = check.CheckForBuildingS();
-            int[,] house = check.CheckForBuilding(x, y);
+            Building[x, y].TimeTillStage = 1;//потом сюда время пихну как переменную
+        }*/
 
-            System.Threading.Thread.Sleep(5000);
-
-            for (int n = 0; n < house.Length; n++)
+        public void ChangeStage(int num)
+        {
+            if (Building[num].NumOfStages > Building[num].Stage)
             {
-                for (int k = 0; k < house.Length; k++)
-                {
-                    if (house[n, k] != -1 && Building[n, k].NumOfStages > Building[n, k].Stage)
-                    {
-                        int _eventNum = rand.Next(Building[n, k].PossibleEvents.Length) - level + (int)Math.Round((float)(level / rand.Next(level + 1)), MidpointRounding.AwayFromZero);
-                        if (_eventNum < 0)
-                        {
-                            _eventNum = 0;//0 - самое вероятное событие
-                        }
-                        _eventNum = (int)Building[n, k].PossibleEvents[_eventNum];
-                        string _type = Building[n, k].TypeOfBuilding;
-                        MyEvents.StartEvent(_eventNum, _type);
-
-                        for (int i = 0; i < house.Length; i++)
-                        {
-                            for (int j = 0; j < house.Length; j++)
-                            {
-                                if (house[i, j] != -1)
-                                {
-                                    Building[i, j].Stage++;
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
+                int _eventNum = RandomEvent(level, Building[num].PossibleEvents.Length);
+                _eventNum = (int)Building[num].PossibleEvents[_eventNum];
+                string _type = Building[num].TypeOfBuilding;
+                MyEvents.StartEvent(_eventNum, _type);
+                Building[num].Stage++;
             }
-            ChangeStage(x, y);
+            Building[num].StartStage();
         }
 
-        /*//Counting changing stage of building.
-        IEnumerator StageBuilder(int i)
+        private int RandomEvent(int _lvl, int _lenght)
         {
-            yield return new WaitForSecondsRealtime(5f);
-            level = GetComponentInParent<PlayerManager>().level;
-            for (int n = 0; n < lengthGrid; n++)
+            var rand = new Random();
+            int n = rand.Next(1, 101);
+            if (_lenght == 1)
             {
-                for (int k = lengthGrid; k >= 0; k++)
-                {
-                    if (checkBuilding.Buildings[i][n, k] != -1 && Grid[n, k].NumOfStages > Grid[n, k].Stage)
-                    {
-                        //возможен проеб в математике, проверим потом)))
-                        int _eventNum = UnityEngine.Random.Range(0, Grid[n, k].PossibleEvents.Length) - level + (int)Math.Round((float)(level / UnityEngine.Random.Range(1, level + 1)), MidpointRounding.AwayFromZero);
-                        if (_eventNum < 0)
-                        {
-                            _eventNum = 0;//0 - самое вероятное событие
-                        }
-                        _eventNum = (int)Grid[n, k].PossibleEvents[_eventNum];
-                        string _type = Grid[n, k].TypeOfBuilding;
-                        cityGrid.GetComponent<MyEvents>().StartEvent(_eventNum, _type);
-                        for (int f = 0; f < cityGrid.Size; f++)
-                        {
-                            for (int j = 0; j < cityGrid.Size; j++)
-                            {
-                                if (checkBuilding.Buildings[i][f, j] != -1)
-                                {
-                                    Debug.Log($"Building {i} with part on ({f},{j}) new stage.");
-                                    Grid[f, j].Stage++;
-                                }
-                            }
-                        }
-                        StartCoroutine(StageBuilder(i));
-                        break;
-                        //break;
-                    }
-                }
+                return 0;
             }
-        }*/
+            else if (_lenght == 2)
+            {
+                n = rand.Next(1, 61);
+            }
+            else if (_lenght == 3)
+            {
+                n = rand.Next(1, 76);
+            }
+            else if (_lenght == 4)
+            {
+                n = rand.Next(1, 86);
+            }
+            else if (_lenght == 5)
+            {
+                n = rand.Next(1, 93);
+            }
+            else if (_lenght == 6)
+            {
+                n = rand.Next(1, 97);
+            }
+
+
+            if (rand.Next(3) > 0 && n > _lvl)//sometimes bigger lvl make more easyer events
+            {
+                n -= _lvl;
+            }
+
+
+            if (n > 0 && n <= 40) return 0;
+            else if (n > 40 && n <= 60) return 1;
+            else if (n > 60 && n <= 75) return 2;
+            else if (n > 75 && n <= 85) return 3;
+            else if (n > 85 && n <= 92) return 4;
+            else if (n > 92 && n <= 96) return 5;
+            return 6;
+        }
     }
 }

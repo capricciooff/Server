@@ -8,7 +8,7 @@ namespace GameServer
 {
     class CheckBuildingInGrid
     {
-        private Grid[,] Grid;
+        private int[,] grid;
         public List<int[,]> Buildings = new List<int[,]>();
 
         private int[,] notReady;
@@ -16,37 +16,40 @@ namespace GameServer
 
         private int Size;
 
+        int CurrentBuilding;
+
         public CheckBuildingInGrid(int _size, Player _player)
         {
-            Grid = _player.Building;
             Size = _size;
             notReady = new int[Size, Size];
             building = new int[Size, Size];
+            grid = new int[Size, Size];
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size; j++)
                 {
                     notReady[i, j] = -1;
-                }
-            }
-            for (int n = 0; n < Size; n++)
-            {
-                for (int k = 0; k < Size; k++)
-                {
-                    building[n, k] = -1;
+                    building[i, j] = -1;
+                    grid[i, j] = _player.grid[i, j];
                 }
             }
         }
 
-        int CurrentBuilding;
         public int[,] CheckForBuilding(int x, int y)
         {
-            Buildings.Clear();
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size; j++)
                 {
-                    notReady[i, j] = Grid[i, j].CurrentBuilding;
+                    notReady[i, j] = grid[i, j];
+                }
+            }
+
+            for (int n = 0; n < Size; n++)
+            {
+                for (int k = Size - 1; k >= 0; k--)
+                {
+                    building[n, k] = -1;
                 }
             }
 
@@ -57,27 +60,13 @@ namespace GameServer
                     if (notReady[i, j] != -1)
                     {
                         CurrentBuilding = notReady[i, j];
-                        CheckBench(i, j);
-                        Buildings.Add(building);
-                        for (int n = 0; n < Size; n++)
-                        {
-                            for (int k = Size - 1; k >= 0; k--)
-                            {
-                                building[n, k] = -1;
-                            }
-                        }
                     }
                 }
             }
 
-            for (int i = 0; i < Buildings.Count; i++)
-            {
-                if (Buildings[i][x, y] != -1)
-                {
-                    return Buildings[i];
-                }
-            }
-            return new int[0,0];
+            CheckBench(x, y);
+
+            return building;
         }
 
         public List<int[,]> CheckForBuildingS()
@@ -87,7 +76,7 @@ namespace GameServer
             {
                 for (int j = 0; j < Size; j++)
                 {
-                    notReady[i, j] = Grid[i, j].CurrentBuilding;
+                    notReady[i, j] = grid[i, j];
                 }
             }
 
