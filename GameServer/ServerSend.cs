@@ -97,12 +97,13 @@ namespace GameServer
 
         public static void BuildingGrid(Player _player, bool _changes)
         {
-            //if (_changes)   //используется, чтобы посылать только при измененнии, но, чтобы не потерять пакет, лучше пока убрать. :^(
+            if (_changes)   //используется, чтобы посылать только при измененнии, но, возможно надо будет убрать
             {
                 using (Packet _packet = new Packet((int)ServerPackets.gridBuilding))
                 {
                     _packet.Write(_player.id);
                     _packet.Write(_player.Building.Count);
+                    _packet.Write(_player.grid.Length);
                     foreach (Grid _grid in _player.Building)
                     {
                         foreach (int _building in _grid.CurrentBuilding)
@@ -110,7 +111,7 @@ namespace GameServer
                             _packet.Write(_building);
                         }
                     }
-                    SendTCPDataToAll(_player.id, _packet);//Здесь будем использовать TCP, т.к. пакет важный и нельзя его терять!!!
+                    SendTCPDataToAll(/*_player.id,*/ _packet);//Здесь будем использовать TCP, т.к. пакет важный и нельзя его терять!!!
                 }
             }
         }
@@ -133,11 +134,22 @@ namespace GameServer
             {
                 _packet.Write(_player.id);
                 _packet.Write(_player.Building.Count);
-                foreach (Grid _building in _player.Building)
+                _packet.Write(_player.grid.Length);
+                foreach (Grid _grid in _player.Building)
                 {
-                    _packet.Write(_building.Stage);
+                    foreach (int _building in _grid.CurrentBuilding)
+                    {
+                        if(_building == -1)
+                        {
+                            _packet.Write(-1);
+                        }
+                        else
+                        {
+                            _packet.Write(_grid.Stage);
+                        }
+                    }
                 }
-                SendUDPDataToAll(_player.id, _packet);//UDP быстрее
+                SendTCPDataToAll(/*_player.id,*/ _packet);
             }
         }
         #endregion

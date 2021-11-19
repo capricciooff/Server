@@ -49,7 +49,7 @@ namespace GameServer
             check = new CheckBuildingInGrid(_size, this);//для начальной конфигурации
         }
 
-        public void AddToBuildings(int x, int y)//Почти работает
+        public void AddToBuildings(int x, int y)
         {
             check = new CheckBuildingInGrid(size, this);
             int[,] new_building = check.CheckForBuilding(x, y);
@@ -71,6 +71,7 @@ namespace GameServer
             }
             if (numOfBuilding != -1)
             {
+                //Добавление в сетку старого здания
                 for (int i = 0; i < size; i++)
                 {
                     for (int j = 0; j < size; j++)
@@ -81,6 +82,7 @@ namespace GameServer
             }
             else
             {
+                Console.WriteLine("New");
                 //Инициализация типа нового здания
                 Grid tmp_grid = new Grid();
                 tmp_grid.CurrentBuilding = new int[size, size];
@@ -92,6 +94,7 @@ namespace GameServer
                     }
                 }
                 Building.Add(tmp_grid);
+                Console.WriteLine(Building.Count - 1);
                 for (int i = 0; i < size; i++)
                 {
                     for (int j = 0; j < size; j++)
@@ -111,7 +114,6 @@ namespace GameServer
         {
             ServerSend.BuildingGrid(this, Changes);
             //ServerSend.CursorGrid(this);  пока нормально не работает, да и не очень оно надо, поэтому не делаю.
-            ServerSend.StageGrid(this);
 
             for (int k = 0; k < Building.Count; k++)
             {
@@ -126,30 +128,33 @@ namespace GameServer
             }
         }
 
-        public void SetGrid(int[,] _grid, bool _changes)//in serverhandle
+        public void SetGrid(int[,] _grid, bool _changes)//from serverhandle
         {
             Changes = _changes;
-            for (int i = 0; i < size; i++)
+            if (Changes)
             {
-                for (int j = 0; j < size; j++)//Надо оптимизировать эти циклы, а то их многовато становится
+                for (int i = 0; i < size; i++)
                 {
-                    if (grid[i, j] != _grid[i, j])
+                    for (int j = 0; j < size; j++)//Надо оптимизировать эти циклы, а то их многовато становится
                     {
-                        if (_grid[i, j] != -1 && grid[i, j] == -1)
+                        if (grid[i, j] != _grid[i, j])
                         {
-                            grid[i, j] = _grid[i, j];
-                            changedX = i;
-                            changedY = j;
-                            AddToBuildings(changedX, changedY);
-                            break;
-                        }
-                        else if (_grid[i, j] != -1)
-                        {
-                            //здесь надо обновить владельца
-                        }
-                        else if (_grid[i, j] == -1)
-                        {
-                            //здесь надо удалить здание
+                            if (_grid[i, j] != -1 && grid[i, j] == -1)
+                            {
+                                grid[i, j] = _grid[i, j];
+                                changedX = i;
+                                changedY = j;
+                                AddToBuildings(changedX, changedY);
+                                break;
+                            }
+                            else if (_grid[i, j] != -1)
+                            {
+                                //здесь надо обновить владельца
+                            }
+                            else if (_grid[i, j] == -1)
+                            {
+                                //здесь надо удалить здание
+                            }
                         }
                     }
                 }
@@ -175,8 +180,13 @@ namespace GameServer
                 string _type = Building[num].TypeOfBuilding;
                 MyEvents.StartEvent(_eventNum, _type);
                 Building[num].Stage++;
+                Building[num].StartStage();
             }
-            Building[num].StartStage();
+            else
+            {
+                Building[num].TimeTillStage = -1;//При достижении конца постройки отключаем увеличение стадий, можно будет потом инициализировать таймер с просто рандомными ивентами
+            }
+            ServerSend.StageGrid(this);
         }
 
         private int RandomEvent(int _lvl, int _lenght)

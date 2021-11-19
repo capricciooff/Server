@@ -52,8 +52,8 @@ namespace GameServer
                     building[n, k] = -1;
                 }
             }
-
-            for (int i = 0; i < Size; i++)
+            CurrentBuilding = notReady[x, y];
+            /*for (int i = 0; i < Size; i++)
             {
                 for (int j = Size - 1; j >= 0; j--)
                 {
@@ -62,7 +62,7 @@ namespace GameServer
                         CurrentBuilding = notReady[i, j];
                     }
                 }
-            }
+            }*/
 
             CheckBench(x, y);
 
